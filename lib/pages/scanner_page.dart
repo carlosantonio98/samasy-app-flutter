@@ -33,39 +33,35 @@ class _ScannerPageState extends State<ScannerPage> {
     super.initState();
   
     _loadUserToken();
-    //_loadUserInfo();  como no hay token fall
   }
 
-  void _loadUserToken() {
+  Future<void> _loadUserToken() async {
     final authService = Provider.of<AuthServices>(context, listen: false);
-    final token = authService.token;
-    print('Token en el scanner:' + authService.token);
-
-    setState(() {
-     _token = token;
-    });
-  }
-
-
-  /* void _loadUserToken() async {  no falla el token si antes seteamos el token con el isLoggedIn
-    final authService = Provider.of<AuthServices>(context, listen: false);
-    final token = authService.token;
-    print('Token en el scanner:' + authService.token);
     
-    final isLoggedIn = await authService.isLoggedIn();
-    print('Isloggin en el scanner:' + isLoggedIn.toString());
+    try {
 
-    setState(() {
-     _token = token;
-    });
-  } */
+      // Verifica que esta logueado y obtenemos el token del campo _token del provider, es necesario hacer esto para que se refresque en valor del token en el provider
+      final isLoggedIn = await authService.isLoggedIn();
 
+      if ( !isLoggedIn ) throw('Error: Is not logged');
+
+      setState(() {
+        _token = authService.token;
+      });
+
+      // permite obtener el usuario, con el _token actual, si ponemos las dos funciones asincrones en el initState estas no respetan el orden, obtienen los datos a como acaben
+      _loadUserInfo();
+
+    } catch (e) {
+      throw('Error::::::' +  e.toString());
+    }
+  }
 
 
 
   Future<void> _loadUserInfo() async {
-
     try {
+
       final userJson = await ApiService().getUserInfo(_token!);
 
       setState(() {
@@ -77,45 +73,34 @@ class _ScannerPageState extends State<ScannerPage> {
       });
 
     } catch (e) {
-      print(e);
+      throw('Error::::::' +  e.toString());
     }
   }
 
 
 
-  Future<http.Response> _saleRegister(url) async {
-    late http.Response response;
-    print('entre1');
+  Future<void> _saleRegister(productId) async {
 
     try {
-      print('entre2');
 
-      var map = Map<String, dynamic>();
-      map['product_id'] = '3';
-      map['user_id'] = _user?.id;
-
-      print(map);
+      Map body = { 'product_id': productId, 'user_id': _user?.id };
 
       final response = await http.post(
-        Uri.parse('${baseURL}sales/register-by-qr'), 
-        headers: {'Authorization': 'bearer $_token', 'Content-Type': 'application/json', 'Accept': 'application/json', 'Charset': 'utf-8'},
-        body: map
+        Uri.parse('${baseURL}sales/new-sale'), 
+        headers: { 'Authorization': 'Bearer $_token', 'Content-Type': 'application/json', 'Accept': 'application/json', 'Charset': 'utf-8' },
+        body: jsonEncode(body)
       );
 
-      print('entre3');
+      Map<String, dynamic> responseMap = json.decode(response.body);
 
-      final dcode = json.decode(json.encode(response.body));
-
-      print('Sale Response: $dcode');
-
-      if (200 == response.statusCode) {
-        return response;
-      } else {
-        throw 'Error fallo el registro';
+      if (response.statusCode == 201) {
+        succesSnackBar(context, responseMap['message']);
+      } else { // recibimos el codigo 200 porque el 204 no trae el body y marca error al intentar hacer json.decode
+        errorSnackBar(context, responseMap['message']);
       }
 
-    } catch (e) {
-      throw 'Error fallo el try';
+    } catch(e) {
+      errorSnackBar(context, e.toString());
     }
 
   }
@@ -144,13 +129,6 @@ class _ScannerPageState extends State<ScannerPage> {
 
 
 
-
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -159,17 +137,19 @@ class _ScannerPageState extends State<ScannerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Barcode: $_scanBarcode, Token: $_token'),
+            (_user?.name != null) ? Text('Barcode: $_scanBarcode, Token: $_token') : CircularProgressIndicator(),
+
+            SizedBox(height: 50.0),
+
+            (_user?.name != null) ? Text('Bienvenido:' + _user!.name) : CircularProgressIndicator(),
+
+            SizedBox(height: 50.0),
+
             ElevatedButton(
               onPressed: () {
                 scanQR();
               }, 
               child: Text('Scan')
-            ),
-            ElevatedButton(
-              onPressed: () {
-              }, 
-              child: Text('Load')
             ),
           ],
         ),

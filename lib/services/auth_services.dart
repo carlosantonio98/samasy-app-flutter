@@ -23,9 +23,8 @@ class AuthServices with ChangeNotifier {
     );
 
     if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      _saveToken(responseData['token']);
-      notifyListeners();
+      final token = json.decode(response.body);
+      _saveToken(token);
       return true;
     } else {
       return false;
@@ -43,7 +42,6 @@ class AuthServices with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('token') ?? '';
     notifyListeners();
-    print('Token en isLoggedIn:' + _token);
     return _token != '';
   }
 
@@ -51,8 +49,9 @@ class AuthServices with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('token', token);
     _token = token;
-    print('Token en saveToken:' + _token);
+    notifyListeners();
   }
 
-  String get token => 'token:' + _token;
+  String get token => _token;
+
 }
