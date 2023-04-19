@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samasy_app/rounded_button.dart';
 import 'package:samasy_app/services/auth_services.dart';
+
+import 'package:samasy_app/services/globals.dart';
+import 'package:http/http.dart' as http;
 
 
 class LoginPage extends StatefulWidget {
@@ -19,52 +24,56 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthServices>(context);
 
-    login() async {
-      if (_email.isNotEmpty && _password.isNotEmpty) {
-        bool? isLoggedIn = await authService.login(_email, _password);
-        if (isLoggedIn != null) {
-          // navegar a la pantalla de inicio después del inicio de sesión exitoso
-          Navigator.pushNamed(context, 'scanner');
-        } else {
-          // mostrar un mensaje de error si el inicio de sesión falla
-          print('ocurrio un error el la función login de LoginPage');
-        }
-      }
-    }
+    Future<void> _login() async {
 
-    // XGECAR ESTE CÓDIGO DE ABAJO ESTE ES EL QUE PERMITE MOSTRAR EL ERRO EN EL SNACKBAR
-    /* final authInfo = Provider.of<AuthProvider>(context);
-    loginPressed() async {
-      authInfo.status = AuthStatus.Authenticating;
+      // Validamos desde el front que los campos no vengan vacíos 
+      if (_email.isNotEmpty  && _password.isNotEmpty) {
 
-      if (_email.isNotEmpty && _password.isNotEmpty) {
-        http.Response response = await AuthServices.login(_email, _password);
+        // Hacemos la petición de login y esperamos la respuesta
+        final response = await authService.login(_email, _password);
 
-        Map responseMap = jsonDecode(response.body);
+        // Si el estatus es 422 recibimos el error o mensaje y los mostrasmos
+        if (response!.statusCode == 422) {
 
-        if (response.statusCode == 200) {
-          User user = User(
-            id:    responseMap['user']['id'], 
-            name:  responseMap['user']['name'], 
-            email: responseMap['user']['email'],
-          );
+          // Transformamos los datos que recibimos de respuesta
+          Map<String, dynamic> responseMap = json.decode(response.body);
 
-          authInfo.user = user;
-          authInfo.status = AuthStatus.Authenticated;
+          var validationErrors = '';
 
-          SharedPreferences localStorage = await SharedPreferences.getInstance();
-          localStorage.setString('token', responseMap['token']);
-          //localStorage.setString('user', user.toJSON().toString());
+          // Si existe algún error mostramos el error, si no, mostramos el mensaje que mandamos desde el back
+          if (responseMap['errors'] != null) {
+
+            // Obtenemos todos los mensajes de error y los guardamos en la variable validationErrors
+            responseMap['errors'].forEach((field, errors) {
+              errors.forEach((error) {
+                validationErrors += '$error \n';
+              });
+            });
+            
+            errorSnackBar(context, validationErrors.trim());
+
+          } else {
+            validationErrors = responseMap['message'];
+            errorSnackBar(context, validationErrors);  // 
+          }
+
+          // Si el estatus es 200 redirigimos al home y mostramos un mensaje de exito
+        } else if (response.statusCode == 200) {
 
           Navigator.pushNamed(context, 'home');
+          succesSnackBar(context, 'Login successfully');
 
+          // Si es un estatus diferente mostramos el error desconocido
         } else {
-          errorSnackBar(context, responseMap.values.first);
+          errorSnackBar(context, 'unknown error');
         }
+
+        // Si alguno de los campos del front estan vacíos, muestro un mensaje
       } else {
-        errorSnackBar(context, 'enter all required fields');
+        errorSnackBar(context, 'Enter all required fields');
       }
-    } */
+
+    }
 
     return Scaffold(
         appBar: AppBar(
@@ -88,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               TextField(
                 decoration: const InputDecoration(
-                  hintText: 'Enter your email',
+                  hintText: 'email@google.com',
                 ),
                 onChanged: (value) {
                   _email = value;
@@ -100,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
               TextField(
                 obscureText: true,
                 decoration: const InputDecoration(
-                  hintText: 'Enter your password',
+                  hintText: 'password',
                 ),
                 onChanged: (value) {
                   _password = value;
@@ -111,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               RoundedButton(
                 btnText: 'LOG IN',
-                onBtnPressed: () => login(),
+                onBtnPressed: () => _login(),
               )
             ],
           ),

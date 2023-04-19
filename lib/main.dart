@@ -3,9 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:samasy_app/pages/home_page.dart';
 import 'package:samasy_app/pages/login_page.dart';
-import 'package:samasy_app/pages/scanner_page.dart';
-import 'package:samasy_app/providers/auth_provider.dart';
-import 'package:samasy_app/providers/sale_provider.dart';
+
 import 'package:samasy_app/services/auth_services.dart';
 
 void main() async {
@@ -18,8 +16,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider( create: (context) => AuthProvider() ),
-        ChangeNotifierProvider( create: (context) => SaleProvider() ),
         ChangeNotifierProvider( create: (context) => AuthServices() ),
       ],
       child: MyApp(isLoggedIn: isLoggedIn)
@@ -37,11 +33,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'samasy app',
       debugShowCheckedModeBanner: false,
-      initialRoute: isLoggedIn ? 'scanner' : 'login',
+      initialRoute: isLoggedIn ? 'home' : 'login',
       routes: {
         'login':   (context) => const LoginPage(),
         'home':    (context) => const HomePage(),
-        'scanner': (context) => const ScannerPage(),
       },
     );
   }

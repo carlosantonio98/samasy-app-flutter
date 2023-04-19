@@ -1,15 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samasy_app/components/sale_card.dart';
 import 'package:samasy_app/models/sale.dart';
-import 'package:samasy_app/models/user.dart';
-import 'package:samasy_app/services/api_services.dart';
 
+import 'package:samasy_app/services/api_services.dart';
 import 'package:samasy_app/services/auth_services.dart';
 
-import 'package:samasy_app/services/sale_services.dart';
+import 'package:intl/intl.dart';
 
 
 class SaleCardList extends StatefulWidget {
@@ -21,62 +18,61 @@ class SaleCardList extends StatefulWidget {
 }
 
 class _SaleCardListState extends State<SaleCardList> {
-  User? _user;
+  String? _token;
+
+  Future<void> _loadUserToken() async {
+    final authService = Provider.of<AuthServices>(context, listen: false);
+    
+    try {
+
+      // Verifica que esta logueado y obtenemos el token del campo _token del provider, es necesario hacer esto para que se refresque en valor del token en el provider
+      final isLoggedIn = await authService.isLoggedIn();
+
+      if ( !isLoggedIn ) throw('Error: Is not logged');
+
+      setState(() {
+        _token = authService.token;
+      });
+
+    } catch (e) {
+      throw('Error::::::' +  e.toString());
+    }
+  }
+
+
+  Future<List<Sale>> _loadSales() async {
+    List<Sale> sales = [];
+
+    try {
+
+      if (_token != null) {
+        final salesJson =  await ApiService().getSales(_token!);
+
+        for (var data in salesJson['data']) {
+          String dateFormate = DateFormat("dd-MM-yyyy hh:mm").format(DateTime.parse(data['created_at']));
+          
+          sales.add(
+            Sale(id: data['id'], name: data['name'], price: data['price'], created_at: dateFormate)
+          );
+        }
+      }
+
+      return sales;
+
+    } catch (e) {
+      throw ('Error:::::' + e.toString());
+    }
+  }
+
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
-  }
-
-  // cargamos los datos del user
-  Future<void> _loadUserInfo() async {
-    final authService = Provider.of<AuthServices>(context, listen: false);
-    final token = authService.token;
-    print(authService.token);
-
-    try {
-      final userJson = await ApiService().getUserInfo(token);
-
-      setState(() {
-        _user = User(
-          id: userJson['id'],
-          name: userJson['name'],
-          email: userJson['email'],
-        );
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
+    _loadUserToken();
+  }  
+  
   @override
   Widget build(BuildContext context) {
-    
-    // indicamos que sea de tipo stream para que escuche cambion en los datos en realTime
-    Future<List<Sale>> _getSales() async {
-      final response = await SaleServices.getSales( _user?.id );
-
-      List<Sale> sales = [];
-
-      if (response.statusCode == 200) {
-
-        String body = utf8.decode(response.bodyBytes); // se hace para que nos muestre bien los textos aunque traigan ñ o acentos.
-
-        final jsonData = jsonDecode(body);
-
-        for (var data in jsonData['data']) {
-          sales.add(
-            Sale(id: data['id'], name: data['name'], price: data['price'], created_at: data['created_at'])
-          );
-        }
-
-        return sales;
-
-      } else {
-        throw Exception('Falló la conexión');
-      }
-    }
 
     final listTitle = Container(
       margin: const EdgeInsets.only(
@@ -106,8 +102,8 @@ class _SaleCardListState extends State<SaleCardList> {
       return sales;
     }
 
-    return FutureBuilder<List<Sale>> (
-      future: _getSales(),
+    return FutureBuilder (
+      future: _loadSales(),
       builder: (context, snapshot) {  // snapshot contiene todos los datos de nuestro future
 
         if ( snapshot.hasData ) { 
@@ -122,6 +118,7 @@ class _SaleCardListState extends State<SaleCardList> {
               children: _listSalesCard( snapshot.data )
             )
           );
+
         } else if (snapshot.hasError) {
           return const Text( 'Error' );
         }

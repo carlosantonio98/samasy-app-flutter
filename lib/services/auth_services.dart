@@ -11,24 +11,21 @@ class AuthServices with ChangeNotifier {
   String _token = '';
 
   // Methods
-  Future<bool?> login(String email, String password) async {
-    Map data = {
-      "email":    email,
-      "password": password,
-    };
+  Future<http.Response?> login(String email, String password) async {
+    Map<String, dynamic> data = { "email":    email, "password": password };
 
     final response = await http.post(
       Uri.parse('${baseURL}auth/login'),
-      body: data,
+      body: json.encode(data),
+      headers: headers
     );
 
     if (response.statusCode == 200) {
       final token = json.decode(response.body);
       _saveToken(token);
-      return true;
-    } else {
-      return false;
     }
+  
+    return response;
   }
 
   Future<void> logout() async {

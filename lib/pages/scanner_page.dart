@@ -83,12 +83,12 @@ class _ScannerPageState extends State<ScannerPage> {
 
     try {
 
-      Map body = { 'product_id': productId, 'user_id': _user?.id };
+      Map<String, dynamic> data = { 'product_id': productId, 'user_id': _user?.id };
 
       final response = await http.post(
         Uri.parse('${baseURL}sales/new-sale'), 
-        headers: { 'Authorization': 'Bearer $_token', 'Content-Type': 'application/json', 'Accept': 'application/json', 'Charset': 'utf-8' },
-        body: jsonEncode(body)
+        headers: { 'Authorization': 'Bearer $_token', ...headers },
+        body: json.encode(data)
       );
 
       Map<String, dynamic> responseMap = json.decode(response.body);

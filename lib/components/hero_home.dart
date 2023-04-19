@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samasy_app/models/user.dart';
 import 'package:samasy_app/services/auth_services.dart';
-import 'package:samasy_app/services/sale_services.dart';
 
 import '../services/api_services.dart';
 
@@ -17,20 +14,42 @@ class HeroHome extends StatefulWidget {
 
 class _HeroHomeState extends State<HeroHome> {
   User? _user;
-  String _moneySales = '0';
+  String? _moneySales;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
+    _loadUserToken();
   }
 
-  Future<void> _loadUserInfo() async {
-    final authService = Provider.of<AuthServices>(context, listen: false);
-    final token = authService.token;
 
+  Future<void> _loadUserToken() async {
+    final authService = Provider.of<AuthServices>(context, listen: false);
+    
     try {
-      final userJson = await ApiService().getUserInfo(token);
+
+      // Verifica que esta logueado y obtenemos el token del campo _token del provider, es necesario hacer esto para que se refresque en valor del token en el provider
+      final isLoggedIn = await authService.isLoggedIn();
+
+      if ( !isLoggedIn ) throw('Error: Is not logged');
+
+      setState(() {
+        _token = authService.token;
+      });
+
+      // permite obtener el usuario, con el _token actual, si ponemos las dos funciones asincrones en el initState estas no respetan el orden, obtienen los datos a como acaben
+      _loadUserInfo();
+
+    } catch (e) {
+      throw('Error::::::' +  e.toString());
+    }
+  }
+
+
+  Future<void> _loadUserInfo() async {
+    try {
+      final userJson = await ApiService().getUserInfo(_token!);
 
       setState(() {
         _user = User(
@@ -40,38 +59,35 @@ class _HeroHomeState extends State<HeroHome> {
         );
       });
 
-      // Load sales all
       _loadSales();
     } catch (e) {
       print(e);
     }
   }
 
+  
   Future<void> _loadSales() async {
-    final response = await SaleServices.getSalesMoney( _user?.id );
-
-    if (response.statusCode == 200) {
-
-      String body = utf8.decode(response.bodyBytes);
-
-      final jsonData = jsonDecode(body);
+    try {
+      final moneyJson = await ApiService().getSalesMoney(_token!);
 
       setState(() {
-        _moneySales = jsonData['totalMoney'];
+        _moneySales = moneyJson['totalMoney'];
       });
 
-    } else {
-      throw Exception('Falló la conexión');
+    } catch (e) {
+      print(e);
     }
   }
 
+  
+  
   @override
   Widget build(BuildContext context) {
 
     final size = MediaQuery.of(context).size;
 
     final welcomeText = Text(
-      'WELCOME, ${ _user?.name.toUpperCase() }',
+      'WELCOME, ${ _user?.name.toUpperCase() ?? '' }',
       style: const TextStyle(
         fontSize: 14.0,
         color: Color(0xFFC3C0C1)
@@ -92,7 +108,7 @@ class _HeroHomeState extends State<HeroHome> {
     );
 
     final totalMoney = Text(
-      _moneySales,
+      _moneySales ?? '0.00',
       style: const TextStyle(
         fontSize: 40.0,
         color: Color(0xFF1A1A1A)
