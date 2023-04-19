@@ -28,11 +28,20 @@ class AuthServices with ChangeNotifier {
     return response;
   }
 
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('token');
-    _token = '';
-    notifyListeners();
+  Future<http.Response?> logout() async {
+    final response = await http.post(
+      Uri.parse('${baseURL}auth/logout'),
+      headers: {'Authorization': 'Bearer $_token', 'Accept': 'application/json', 'Charset': 'utf-8'},
+    );
+
+    if (response.statusCode == 204) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.remove('token');
+      _token = '';
+      notifyListeners();
+    }
+
+    return response;
   }
 
   Future<bool> isLoggedIn() async {

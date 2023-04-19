@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samasy_app/models/user.dart';
 import 'package:samasy_app/services/auth_services.dart';
+import 'package:samasy_app/services/globals.dart';
 
 import '../services/api_services.dart';
 
@@ -83,6 +84,19 @@ class _HeroHomeState extends State<HeroHome> {
   
   @override
   Widget build(BuildContext context) {
+
+    final authService = Provider.of<AuthServices>(context);
+
+    Future<void> _logout() async {
+      final response = await authService.logout();
+
+      if (response?.statusCode == 204) {
+        Navigator.pushNamed(context, 'login');
+        succesSnackBar(context, 'Session ended successfully');
+      } else {
+        errorSnackBar(context, 'An error occurred while trying to log out');
+      }
+    }
 
     final size = MediaQuery.of(context).size;
 
@@ -172,10 +186,18 @@ class _HeroHomeState extends State<HeroHome> {
         Container(
           margin: const EdgeInsets.only(
             left: 20.0,
+            right: 20.0,
             top: 40.0
           ),
 
-          child: logo,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget> [
+              logo,
+
+              IconButton(onPressed: _logout, icon: Icon(Icons.logout))
+            ],
+          ),
         )
       ]
     );
