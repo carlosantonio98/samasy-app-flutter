@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samasy_app/rounded_button.dart';
 import 'package:samasy_app/services/auth_services.dart';
 
 import 'package:samasy_app/services/globals.dart';
@@ -75,55 +74,105 @@ class _LoginPageState extends State<LoginPage> {
 
     }
 
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          centerTitle: true,
-          elevation: 0,
-          title: const Text(
-            'Login',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+    
+    const logo = SizedBox(
+      width: 85,
+      height: 85,
+      child: CircleAvatar(
+        backgroundColor: Color(0xFFF3F3F3),
+        child: Text(
+          'Samasy.',
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Color(0xFF1A1A1A)
           ),
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'email@google.com',
-                ),
-                onChanged: (value) {
-                  _email = value;
-                },
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'password',
-                ),
-                onChanged: (value) {
-                  _password = value;
-                },
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              RoundedButton(
-                btnText: 'LOG IN',
-                onBtnPressed: () => _login(),
-              )
-            ],
+      ),
+    );
+
+    final title = Column(
+      children: <Widget>[
+        Text(
+          'Welcome back!',
+          style: TextStyle(
+            fontSize: 24,
+            color: Color(0xFF1A1A1A)
           ),
-        ));
+        ),
+        Text(
+          'Please enter your login',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFFC3C0C1)
+          ),
+        )
+      ],
+    );
+
+
+    final inputsForm = Column(
+      children: <Widget>[
+        TextField(
+          decoration: const InputDecoration(
+            hintText: 'email@google.com',
+            contentPadding: EdgeInsets.symmetric( vertical: 20 )
+          ),
+          onChanged: (value) {
+            _email = value;
+          },
+        ),
+        SizedBox(height: 30,),
+        TextField(
+          obscureText: true,
+          decoration: const InputDecoration(
+            hintText: 'password',
+            contentPadding: EdgeInsets.symmetric( vertical: 20 )
+          ),
+          onChanged: (value) {
+            _password = value;
+          },
+        ),
+      ],
+    );
+
+    final buttonForm = SizedBox(
+      width: double.infinity,
+      height: 49,
+      child: ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Color(0xFFD0E1CE)),
+        ),
+        child: Text(
+          'Login',
+          style: TextStyle(
+            fontSize: 14,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+        onPressed: () => _login(),
+      ),
+    );
+
+
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(29),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            logo,
+            SizedBox(height: 18,),
+            title,
+            SizedBox(height: 61,),
+            inputsForm,
+            SizedBox(height: 61,),
+            buttonForm
+          ],
+        ),
+      ),
+    );
+    
   }
 }

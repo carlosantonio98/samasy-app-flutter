@@ -11,7 +11,6 @@ void main() async {
 
   final authService = AuthServices();
   final isLoggedIn = await authService.isLoggedIn();
-  print(isLoggedIn);
 
   runApp(
     MultiProvider(

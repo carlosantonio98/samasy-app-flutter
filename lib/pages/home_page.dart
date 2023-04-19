@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      backgroundColor: Color(0xFFEEEEEE),
+      backgroundColor: Color(0xFFFFFFFF),
       body: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget> [
