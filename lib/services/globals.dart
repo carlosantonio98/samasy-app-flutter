@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String baseURL = "http://samasy.iumovies.com/api/"; //emulator localhost
+const String baseURL = "TU_URL_DEL_SISTEMA_SAMASY";
 const Map<String, String> headers = { "Content-Type": "application/json", "Accept": "application/json", "Charset": "utf-8" };
 
 errorSnackBar(BuildContext context, String text) {
