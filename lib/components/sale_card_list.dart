@@ -50,11 +50,11 @@ class _SaleCardListState extends State<SaleCardList> {
 
         for (var data in salesJson['data']) {
           String dateFormate = DateFormat("dd-MM-yyyy hh:mm").format(DateTime.parse(data['created_at']));
-          
-          sales.add(
-            Sale(id: data['id'], name: data['name'], price: data['price'], created_at: dateFormate)
-          );
-        }
+
+          Sale sale = Sale(id: data['id'], name: data['name'], price: data['price'].toString(), createdAt: dateFormate);
+
+          sales.add(sale);
+        }    
       }
 
       return sales;
@@ -95,7 +95,7 @@ class _SaleCardListState extends State<SaleCardList> {
 
       for (var sale in data) {
         sales.add(
-          SaleCard(productName: sale.name, createdSale: sale.created_at, productPrice: sale.price.toString()),
+          SaleCard(productName: sale.name, createdSale: sale.createdAt, productPrice: sale.price.toString()),
         );
       }
 
