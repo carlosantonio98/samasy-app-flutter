@@ -12,15 +12,6 @@ class SaleCard extends StatelessWidget {
 
     final size = MediaQuery.of(context).size;
 
-    const image = SizedBox(
-      width: 30.0,
-      height: 30.0,
-
-      child: CircleAvatar(
-        backgroundColor: Color(0xFFC3C0C1),
-      ),
-    );
-
     final name = Text(
       productName,
       style: const TextStyle(
@@ -72,7 +63,6 @@ class SaleCard extends StatelessWidget {
       ),
 
       child: ListTile(
-        leading: image,
         title: name,
         subtitle: time,
         trailing: priceSale,
