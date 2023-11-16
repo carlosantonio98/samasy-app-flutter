@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
-import 'package:samasy_app/Services/globals.dart';
-
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:samasy_app/config.dart';
 
 class AuthServices with ChangeNotifier {
 
@@ -15,9 +15,9 @@ class AuthServices with ChangeNotifier {
     Map<String, dynamic> data = { "email":    email, "password": password };
 
     final response = await http.post(
-      Uri.parse('${baseURL}auth/login'),
+      Uri.parse('${SamasyConfig.baseURL}auth/login'),
       body: json.encode(data),
-      headers: headers
+      headers: SamasyConfig.headers
     );
 
     if (response.statusCode == 200) {
@@ -30,7 +30,7 @@ class AuthServices with ChangeNotifier {
 
   Future<http.Response?> logout() async {
     final response = await http.post(
-      Uri.parse('${baseURL}auth/logout'),
+      Uri.parse('${SamasyConfig.baseURL}auth/logout'),
       headers: {'Authorization': 'Bearer $_token', 'Accept': 'application/json', 'Charset': 'utf-8'},
     );
 

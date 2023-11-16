@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-
-import 'dart:async';
 import 'package:flutter/services.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
+import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:samasy_app/services/globals.dart';
 
+import 'package:samasy_app/config.dart';
 
 import 'package:provider/provider.dart';
 import 'package:samasy_app/models/user.dart';
-import 'package:samasy_app/services/auth_services.dart';
 
-import '../services/api_services.dart';
+import 'package:samasy_app/services/auth_services.dart';
+import 'package:samasy_app/services/api_services.dart';
+
+import 'package:samasy_app/snackbars.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -86,8 +88,8 @@ class _ScannerPageState extends State<ScannerPage> {
       Map<String, dynamic> data = { 'product_id': productId, 'user_id': _user?.id };
 
       final response = await http.post(
-        Uri.parse('${baseURL}sales/new-sale'), 
-        headers: { 'Authorization': 'Bearer $_token', ...headers },
+        Uri.parse('${SamasyConfig.baseURL}sales/new-sale'), 
+        headers: { 'Authorization': 'Bearer $_token', ...SamasyConfig.headers },
         body: json.encode(data)
       );
 

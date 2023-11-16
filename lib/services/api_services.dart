@@ -1,12 +1,13 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:samasy_app/services/globals.dart';
+
+import 'package:samasy_app/config.dart';
 
 class ApiService {
   Future<Map<String, dynamic>> getUserInfo(String token) async {
     final response = await http.get(
-      Uri.parse('${baseURL}user'),
+      Uri.parse('${SamasyConfig.baseURL}user'),
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json', 'Charset': 'utf-8'},
     );
 
@@ -21,7 +22,7 @@ class ApiService {
   // Otros métodos
   Future<Map<String, dynamic>> getSales(String token) async {
     final response = await http.get(
-      Uri.parse('${baseURL}sales/all-sales'),
+      Uri.parse('${SamasyConfig.baseURL}sales/all-sales'),
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json', 'Charset': 'utf-8'},
     );
 
@@ -37,7 +38,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> getSalesMoney(String token) async {
     final response = await http.get(
-      Uri.parse('${baseURL}sales/money-sales'),
+      Uri.parse('${SamasyConfig.baseURL}sales/money-sales'),
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json', 'Charset': 'utf-8'},
     );
 
@@ -55,8 +56,8 @@ class ApiService {
     Map<String, dynamic> data = { "product_id": productId, "user_id": userId };
 
     final response = await http.post(
-      Uri.parse('${baseURL}sales/new-sale'), 
-      headers: { 'Authorization': 'Bearer $token', ...headers },
+      Uri.parse('${SamasyConfig.baseURL}sales/new-sale'), 
+      headers: { 'Authorization': 'Bearer $token', ...SamasyConfig.headers },
       body: json.encode(data)
     );
 
