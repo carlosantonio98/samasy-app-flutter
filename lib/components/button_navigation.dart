@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'dart:async';
-import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:samasy_app/services/globals.dart';
 
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 import 'package:provider/provider.dart';
 import 'package:samasy_app/models/user.dart';
-import 'package:samasy_app/services/auth_services.dart';
 
-import '../services/api_services.dart';
+import 'package:samasy_app/services/auth_services.dart';
+import 'package:samasy_app/services/api_services.dart';
+
+import 'package:samasy_app/snackbars.dart';
 
 class ButtonNavigation extends StatefulWidget {
   const ButtonNavigation({super.key});

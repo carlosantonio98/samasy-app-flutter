@@ -1,12 +1,11 @@
+import 'package:flutter/material.dart';
+
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samasy_app/services/auth_services.dart';
 
-import 'package:samasy_app/services/globals.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:samasy_app/snackbars.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 import 'package:samasy_app/models/user.dart';
-import 'package:samasy_app/services/auth_services.dart';
-import 'package:samasy_app/services/globals.dart';
 
-import '../services/api_services.dart';
+import 'package:samasy_app/services/auth_services.dart';
+import 'package:samasy_app/services/api_services.dart';
+
+import 'package:samasy_app/snackbars.dart';
 
 class HeroHome extends StatefulWidget {
   HeroHome({super.key});
